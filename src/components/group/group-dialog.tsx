@@ -13,6 +13,8 @@ import { UserCard } from "../user/user-card";
 import { ScrollArea } from "../ui/scroll-area";
 import { IUser } from "@/types/user";
 import { IGroupResponse } from "@/entities/group/types";
+import { Button } from "../ui/button";
+import Link from "next/link";
 
 export interface IGroupDialog extends PropsWithChildren {
   id: string;
@@ -34,7 +36,14 @@ export const GroupDialog: FC<IGroupDialog> = ({ children, id }) => {
           </div>
         ) : (
           <>
-            <DialogTitle>Группа {group?.number}</DialogTitle>
+            <DialogTitle className="flex gap-4 items-center">
+              Группа {group?.number}
+              <Link href={`/groups/${group?.id}`}>
+                <Button variant="ghost" size="sm">
+                  Подробнее
+                </Button>
+              </Link>
+            </DialogTitle>
             <DialogDescription>{group?.label}</DialogDescription>
             <div className="flex flex-col gap-4">
               <div className="gap-2">

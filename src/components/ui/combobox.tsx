@@ -76,7 +76,7 @@ export const Combobox: FC<IComboboxProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-[200px] justify-between", className)}
+          className={cn("justify-between", className)}
         >
           {placeholder}
           <Loader className="ml-2 h-4 w-4 shrink-0 opacity-50 animate-spin" />
@@ -89,7 +89,7 @@ export const Combobox: FC<IComboboxProps> = ({
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-[200px] justify-between"
+              className="justify-between"
             >
               {values.length > 0 ? `Выбрано: ${values.length}` : placeholder}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -104,7 +104,7 @@ export const Combobox: FC<IComboboxProps> = ({
                   {items?.map((item) => (
                     <CommandItem
                       key={item.value}
-                      value={item.value}
+                      value={item.label.toLowerCase() + " " + item.value} // <-- label теперь участвует в поиске
                       onSelect={() => handleSelect(item.value)}
                     >
                       <Check
@@ -112,7 +112,7 @@ export const Combobox: FC<IComboboxProps> = ({
                           "mr-2 h-4 w-4",
                           values.includes(item.value)
                             ? "opacity-100"
-                            : "opacity-0",
+                            : "opacity-0"
                         )}
                       />
                       {item.label}

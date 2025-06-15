@@ -1,4 +1,4 @@
-import { IGetSchedule } from "./types";
+import { IGetSchedule } from "../schedule";
 
 export interface IGetScheduleDTO {
   filters?: {
@@ -11,9 +11,9 @@ export interface IGetScheduleDTO {
 export function getScheduleToDTO(req: IGetSchedule): IGetScheduleDTO {
   return {
     filters: {
-      group_ids: req.filters?.groupIDs,
-      teacher_ids: req.filters?.groupIDs,
-      lesson_ids: req.filters?.lessonIDs,
+      group_ids: req?.groupIDs,
+      teacher_ids: req?.teacherIDs,
+      lesson_ids: req?.lessonIDs,
     },
   };
 }

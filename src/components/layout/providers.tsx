@@ -6,6 +6,8 @@ import { ThemeProvider } from "../theme-provider";
 import { QueryProvider } from "@/entities/queryClient";
 import { Toaster } from "../ui/sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { UserStoreProvider } from "@/entities/auth/provider";
+import RefreshTokenProvider from "@/entities/auth/refresh-token-provider";
 
 export const Providers: FC<PropsWithChildren> = ({ children }) => {
   return (
@@ -19,8 +21,12 @@ export const Providers: FC<PropsWithChildren> = ({ children }) => {
         >
           {/* <SidebarProvider> */}
           <ScheduleStoreProvider>
-            <Toaster />
-            {children}
+            <UserStoreProvider>
+              <RefreshTokenProvider>
+                <Toaster />
+                {children}
+              </RefreshTokenProvider>
+            </UserStoreProvider>
           </ScheduleStoreProvider>
           {/* </SidebarProvider> */}
         </ThemeProvider>

@@ -1,21 +1,30 @@
+import { IEntity } from "./api";
 import { IGroup } from "./group";
+import { ILocation } from "./location";
 
 export enum EUserRole {
-  TEACHER = "teacher",
-  STUDENT = "student",
-  ADMIN = "admin",
+  TEACHER = "TEACHER",
+  STUDENT = "STUDENT",
+  ADMIN = "ADMIN",
+  GUEST = "GUEST",
 }
 
 export interface ISpeciality {
-  id?: string;
-  label: string;
-  description: string;
+  title: string;
+  number: string;
+  code: string;
+  description?: string;
+  groups: IGroup[];
+  location?: ILocation;
+  locationId?: string;
 }
 
-export interface IUser {
-  id?: string;
+export interface IUser extends IEntity {
   name: string;
   surname: string;
   studentGroupId?: string;
-  group?: IGroup;
+  studentGroup?: IGroup;
+  role: EUserRole;
+  email: string;
+  login: string;
 }

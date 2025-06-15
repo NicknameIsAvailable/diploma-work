@@ -6,13 +6,13 @@ export const lessonApi: IApi = {
   queryKey: ["lesson"],
   endpoints: {
     getAllLesson: createApiHandler(async (): Promise<ILesson[]> => {
-      const res = await api.get<ILesson[]>("/lesson", {});
+      const res = await api.get<ILesson[]>("/lesson");
       return res.data;
-    }, "Не удалось получить дисциплины"),
+    }),
     getOneLesson: createApiHandler(async (id: string): Promise<ILesson> => {
       const { data } = await api.get<ILesson>(`/lesson/${id}`);
       return data;
-    }, "Не удалось получить дисциплину"),
+    }),
     createLesson: createApiHandler(async (body: ILesson): Promise<ILesson> => {
       const { data } = await api.post<ILesson>("/lesson", body);
       return data;

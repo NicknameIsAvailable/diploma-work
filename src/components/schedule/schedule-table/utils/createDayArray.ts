@@ -5,8 +5,8 @@ export function createDayArray(
 ): (IScheduleLesson | null)[] {
   const result: (IScheduleLesson | null)[] = new Array(8).fill(null);
   items.forEach((item) => {
-    if (item.order >= 1 && item.order <= 8) {
-      result[item.order - 1] = item;
+    if (item.order?.order >= 1 && item.order?.order <= 8) {
+      result[item.order?.order - 1] = item;
     }
   });
 

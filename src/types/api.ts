@@ -9,5 +9,7 @@ export interface IApi {
 }
 
 export interface IEntity {
-  id?: string;
+  id: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

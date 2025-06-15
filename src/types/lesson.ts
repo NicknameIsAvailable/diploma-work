@@ -1,3 +1,5 @@
+import { IEntity } from "./api";
+import { IDay } from "./day";
 import { IUser } from "./user";
 
 export enum EWeekDay {
@@ -18,15 +20,23 @@ export interface IAudience {
 export interface ILesson {
   id?: string;
   label: string;
-  desciption: string;
+  description: string;
 }
 
-export interface IScheduleLesson {
-  id?: string;
+export interface ILessonOrder extends IEntity {
   order: number;
-  audiences: string[];
-  lessonId: string;
+  startTime: string;
+  endTime: string;
+  scheduleLessons?: IScheduleLesson[];
+}
+
+export interface IScheduleLesson extends IEntity {
   scheduleDayId: string;
+  lessonId: string;
+  audiences: string[];
+  orderId: string;
   lesson: ILesson;
+  order: ILessonOrder;
+  scheduleDay: IDay | null;
   teachers: IUser[];
 }
