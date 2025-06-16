@@ -67,17 +67,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { IUser, EUserRole } from "@/types/user";
 import { userApi } from "@/entities/user/api";
 import { useToast } from "@/hooks/use-toast";
+import { UserFormDialog } from "@/components/admin/user/user-form-dialog";
 
-interface UserFormData {
+export interface UserFormData {
   name: string;
   surname: string;
   email: string;
   login: string;
+  password: string;
   role: EUserRole;
   studentGroupId?: string;
 }
@@ -87,6 +88,7 @@ const initialFormData: UserFormData = {
   surname: "",
   email: "",
   login: "",
+  password: "",
   role: EUserRole.STUDENT,
   studentGroupId: undefined,
 };
@@ -273,6 +275,7 @@ export default function UsersPage() {
       email: user.email,
       login: user.login,
       role: user.role,
+      password: "",
       studentGroupId: user.studentGroupId,
     });
     setEditingUserId(user.id);
@@ -306,117 +309,6 @@ export default function UsersPage() {
         return role;
     }
   };
-
-  const UserFormDialog = ({
-    open,
-    onOpenChange,
-    onSubmit,
-    title,
-    description,
-  }: {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onSubmit: () => void;
-    title: string;
-    description: string;
-  }) => (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Имя</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                placeholder="Введите имя"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="surname">Фамилия</Label>
-              <Input
-                id="surname"
-                value={formData.surname}
-                onChange={(e) =>
-                  setFormData({ ...formData, surname: e.target.value })
-                }
-                placeholder="Введите фамилию"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              placeholder="Введите email"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="login">Логин</Label>
-            <Input
-              id="login"
-              value={formData.login}
-              onChange={(e) =>
-                setFormData({ ...formData, login: e.target.value })
-              }
-              placeholder="Введите логин"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="role">Роль</Label>
-            <Select
-              value={formData.role}
-              onValueChange={(value) =>
-                setFormData({ ...formData, role: value as EUserRole })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Выберите роль" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={EUserRole.ADMIN}>Администратор</SelectItem>
-                <SelectItem value={EUserRole.TEACHER}>Преподаватель</SelectItem>
-                <SelectItem value={EUserRole.STUDENT}>Студент</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {formData.role === EUserRole.STUDENT && (
-            <div className="space-y-2">
-              <Label htmlFor="studentGroupId">ID группы студента</Label>
-              <Input
-                id="studentGroupId"
-                value={formData.studentGroupId || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, studentGroupId: e.target.value })
-                }
-                placeholder="Введите ID группы"
-              />
-            </div>
-          )}
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Отмена
-          </Button>
-          <Button onClick={onSubmit}>
-            {title.includes("Создание") ? "Создать" : "Сохранить"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
 
   return (
     <div className="space-y-6">
@@ -738,6 +630,8 @@ export default function UsersPage() {
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onSubmit={handleCreateUser}
+        formData={formData}
+        setFormData={setFormData}
         title="Создание пользователя"
         description="Введите данные нового пользователя"
       />
@@ -746,6 +640,8 @@ export default function UsersPage() {
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSubmit={handleUpdateUser}
+        formData={formData}
+        setFormData={setFormData}
         title="Редактирование пользователя"
         description="Измените данные пользователя"
       />
