@@ -1,6 +1,5 @@
 "use client";
 
-import { UserFormData } from "@/app/admin/users/page";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { groupApi } from "@/entities/group/api";
 import { IGroup } from "@/types/group";
-import { EUserRole } from "@/types/user";
+import { EUserRole, UserFormData } from "@/types/user";
 import { useQuery } from "@tanstack/react-query";
 
 export const UserFormDialog = ({
@@ -154,7 +153,7 @@ export const UserFormDialog = ({
                   <SelectValue placeholder="Выберите группу" />
                 </SelectTrigger>
                 <SelectContent>
-                  {groups.map((group: IGroup) => (
+                  {groups?.map((group: IGroup) => (
                     <SelectItem value={group.id} key={group.id}>
                       {group.number}
                     </SelectItem>

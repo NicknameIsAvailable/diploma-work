@@ -28,3 +28,14 @@ export interface IUser extends IEntity {
   email: string;
   login: string;
 }
+
+export interface UserFormData {
+  name: string;
+  surname: string;
+  email: string;
+  login: string;
+  password: string;
+  repeatPassword: string;
+  role: EUserRole;
+  groupId?: string;
+}

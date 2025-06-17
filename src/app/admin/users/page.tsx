@@ -68,21 +68,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { IUser, EUserRole } from "@/types/user";
+import { IUser, EUserRole, UserFormData } from "@/types/user";
 import { userApi } from "@/entities/user/api";
 import { useToast } from "@/hooks/use-toast";
 import { UserFormDialog } from "@/components/admin/user/user-form-dialog";
-
-export interface UserFormData {
-  name: string;
-  surname: string;
-  email: string;
-  login: string;
-  password: string;
-  repeatPassword: string;
-  role: EUserRole;
-  groupId?: string;
-}
 
 const initialFormData: UserFormData = {
   name: "",
@@ -137,7 +126,7 @@ export default function UsersPage() {
 
   // Соберите список всех групп пользователей для фильтра
   const allGroups = Array.from(
-    new Set(users.map((u) => u.studentGroup?.number).filter(Boolean))
+    new Set((users ?? []).map((u) => u.studentGroup?.number).filter(Boolean)),
   ) as string[];
 
   // Фильтрация пользователей
@@ -151,7 +140,7 @@ export default function UsersPage() {
           user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           user.surname.toLowerCase().includes(searchQuery.toLowerCase()) ||
           user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.login.toLowerCase().includes(searchQuery.toLowerCase())
+          user.login.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -163,7 +152,7 @@ export default function UsersPage() {
     // Фильтр по группе
     if (groupFilter !== "all") {
       filtered = filtered.filter(
-        (user) => user.studentGroup?.number === groupFilter
+        (user) => user.studentGroup?.number === groupFilter,
       );
     }
 
@@ -175,7 +164,7 @@ export default function UsersPage() {
   const totalPages = Math.ceil(filteredUsers.length / pageSize);
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    currentPage * pageSize,
   );
 
   // Создание пользователя
@@ -473,7 +462,7 @@ export default function UsersPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Все группы</SelectItem>
-                {allGroups.map((group) => (
+                {allGroups?.map((group) => (
                   <SelectItem key={group} value={group}>
                     Группа {group}
                   </SelectItem>
@@ -513,7 +502,7 @@ export default function UsersPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedUsers.map((user) => (
+                  paginatedUsers?.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>
                         <div className="flex items-center space-x-3">
