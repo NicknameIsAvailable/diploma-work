@@ -79,8 +79,9 @@ export interface UserFormData {
   email: string;
   login: string;
   password: string;
+  repeatPassword: string;
   role: EUserRole;
-  studentGroupId?: string;
+  groupId?: string;
 }
 
 const initialFormData: UserFormData = {
@@ -89,8 +90,9 @@ const initialFormData: UserFormData = {
   email: "",
   login: "",
   password: "",
+  repeatPassword: "",
   role: EUserRole.STUDENT,
-  studentGroupId: undefined,
+  groupId: undefined,
 };
 
 export default function UsersPage() {
@@ -179,7 +181,8 @@ export default function UsersPage() {
   // Создание пользователя
   const handleCreateUser = async () => {
     try {
-      await userApi.endpoints.createUser(formData as IUser);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await userApi.endpoints.createUser(formData as any as IUser);
       toast({
         title: "Успешно",
         description: "Пользователь создан",
@@ -276,7 +279,8 @@ export default function UsersPage() {
       login: user.login,
       role: user.role,
       password: "",
-      studentGroupId: user.studentGroupId,
+      repeatPassword: "",
+      groupId: user.studentGroupId,
     });
     setEditingUserId(user.id);
     setIsEditDialogOpen(true);

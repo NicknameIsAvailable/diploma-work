@@ -19,7 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { groupApi } from "@/entities/group/api";
+import { IGroup } from "@/types/group";
 import { EUserRole } from "@/types/user";
+import { useQuery } from "@tanstack/react-query";
 
 export const UserFormDialog = ({
   open,
@@ -38,6 +41,11 @@ export const UserFormDialog = ({
   formData: UserFormData;
   setFormData: (data: UserFormData) => void;
 }) => {
+  const { data: groups } = useQuery({
+    queryKey: groupApi.queryKey,
+    queryFn: groupApi.endpoints.getAllGroups,
+  });
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
@@ -105,6 +113,17 @@ export const UserFormDialog = ({
             />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="login">Повторите пароль</Label>
+            <Input
+              id="repeatPassword"
+              value={formData.repeatPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, repeatPassword: e.target.value })
+              }
+              placeholder="Введите пароль"
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="role">Роль</Label>
             <Select
               value={formData.role}
@@ -124,15 +143,24 @@ export const UserFormDialog = ({
           </div>
           {formData.role === EUserRole.STUDENT && (
             <div className="space-y-2">
-              <Label htmlFor="studentGroupId">ID группы студента</Label>
-              <Input
-                id="studentGroupId"
-                value={formData.studentGroupId || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, studentGroupId: e.target.value })
+              <Label htmlFor="studentGroupId">Группа</Label>
+              <Select
+                value={formData.groupId}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, groupId: value })
                 }
-                placeholder="Введите ID группы"
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите группу" />
+                </SelectTrigger>
+                <SelectContent>
+                  {groups.map((group: IGroup) => (
+                    <SelectItem value={group.id} key={group.id}>
+                      {group.number}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
         </div>
