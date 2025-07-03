@@ -25,7 +25,7 @@ export const lessonOrderApi: IApi = {
     ),
     updateLessonOrder: createApiHandler(
       async (id: string, body: Partial<ILessonOrder>): Promise<ILessonOrder> => {
-        const { data } = await api.patch<ILessonOrder>(`/lesson-order/${id}`, body);
+        const { data } = await api.put<ILessonOrder>(`/lesson-order/${id}`, body);
         return data;
       },
     ),

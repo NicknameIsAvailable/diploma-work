@@ -1,17 +1,17 @@
 "use client";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
-import { lessonApi } from "@/entities/lesson";
 import { ILesson } from "@/types/lesson";
-import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
+import { FC } from "react";
 
-export const LessonTable = () => {
-  const { data, isLoading } = useQuery<ILesson[]>({
-    queryKey: [...lessonApi.queryKey],
-    queryFn: () => lessonApi.endpoints.getAllLesson(),
-  });
+export interface ILessonTableProps {
+  data: ILesson[];
+  isLoading: boolean;
+}
 
+export const LessonTable: FC<ILessonTableProps> = ({ data, isLoading }) => {
   const columns: ColumnDef<ILesson>[] = [
     {
       accessorKey: "id",
@@ -33,14 +33,21 @@ export const LessonTable = () => {
   ];
 
   return (
-    <DataTable<ILesson>
-      isLoading={isLoading}
-      data={data || []}
-      columns={columns}
-      searchFor={{
-        label: "названию",
-        key: "label",
-      }}
-    />
+    <Card>
+      <CardHeader>
+        <CardTitle>Список дисциплин</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <DataTable<ILesson>
+          isLoading={isLoading}
+          data={data || []}
+          columns={columns}
+          searchFor={{
+            label: "названию",
+            key: "label",
+          }}
+        />
+      </CardContent>
+    </Card>
   );
 };

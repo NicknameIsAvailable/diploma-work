@@ -9,10 +9,11 @@ export enum EUserRole {
   GUEST = "GUEST",
 }
 
-export interface ISpeciality {
+export interface ISpeciality extends IEntity {
   title: string;
   number: string;
   code: string;
+  isActive: boolean;
   description?: string;
   groups: IGroup[];
   location?: ILocation;

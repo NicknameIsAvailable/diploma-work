@@ -1,14 +1,20 @@
 "use client";
 
-import { PropsWithChildren, useEffect } from "react";
-import { authApi } from "./api";
 import { toast } from "sonner";
 import { useUserStore } from "./provider";
+import { authApi } from "./api";
+import { PropsWithChildren, useEffect } from "react";
 
 export default function RefreshTokenProvider({ children }: PropsWithChildren) {
   const { setCurrentUser } = useUserStore((store) => store);
 
   const refreshToken = async () => {
+    if (
+      !document.cookie.split("; ").find((c) => c.startsWith("refreshToken="))
+    ) {
+      return;
+    }
+
     const res = await authApi.endpoints.getAccessToken().catch(() => {
       toast("Ошибка обновления токена");
     });
@@ -28,5 +34,5 @@ export default function RefreshTokenProvider({ children }: PropsWithChildren) {
     return () => clearInterval(interval);
   }, []);
 
-  return children;
+  return <>{children}</>;
 }

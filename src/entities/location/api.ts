@@ -23,12 +23,6 @@ export const locationApi: IApi = {
         return data;
       },
     ),
-    createManyLocation: createApiHandler(
-      async (body: ILocation[]): Promise<ILocation[]> => {
-        const { data } = await api.post<ILocation[]>("/location/many", body);
-        return data;
-      },
-    ),
     updateLocation: createApiHandler(
       async (id: string, body: Partial<ILocation>): Promise<ILocation> => {
         const { data } = await api.patch<ILocation>(`/location/${id}`, body);

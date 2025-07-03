@@ -17,8 +17,7 @@ export interface IAudience {
   teacher: IUser;
 }
 
-export interface ILesson {
-  id?: string;
+export interface ILesson extends IEntity {
   label: string;
   description: string;
 }

@@ -1,37 +1,24 @@
-// roleChecker.ts
-
-let cachedRoles: string[] | null = null;
-
-async function fetchUserRoles(): Promise<string[]> {
-  if (cachedRoles) return cachedRoles;
-
-  const res = await fetch("/api/user/roles", { credentials: "include" });
-  if (!res.ok) throw new Error("Failed to fetch user roles");
-
-  const data = await res.json();
-  cachedRoles = data.roles;
-  return cachedRoles || [];
-}
+import { authApi } from "@/entities/auth/api";
+import { IUser } from "@/types/user";
 
 const roleChecker = {
-  async init() {
-    await fetchUserRoles();
+  async getUser(): Promise<IUser> {
+    return await authApi.endpoints.getMe();
   },
 
-  ADMIN() {
-    return cachedRoles?.includes("admin") ?? false;
+  async ADMIN() {
+    const user = await this.getUser();
+    return user.role === "ADMIN";
   },
 
-  MANAGER() {
-    return cachedRoles?.includes("manager") ?? false;
+  async STUDENT() {
+    const user = await this.getUser();
+    return user.role === "STUDENT";
   },
 
-  CUSTOMER() {
-    return cachedRoles?.includes("customer") ?? false;
-  },
-
-  reset() {
-    cachedRoles = null;
+  async TEACHER() {
+    const user = await this.getUser();
+    return user.role === "TEACHER";
   },
 };
 

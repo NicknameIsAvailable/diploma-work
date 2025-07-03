@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
-  BookOpen,
+  GraduationCap,
   Plus,
   Search,
   MoreHorizontal,
@@ -12,6 +12,8 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
+  Users,
+  BookOpen,
 } from "lucide-react";
 import {
   Card,
@@ -59,187 +61,219 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { ILesson } from "@/types/lesson";
-import { lessonApi } from "@/entities/lesson/api";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { LessonFormDialog } from "@/components/admin/lesson/lesson-form-dialog";
+import { SpecialtyFormDialog } from "@/components/admin/specialities/specialty-form";
+import { IUser } from "@/types/user";
+import { IGroup } from "@/types/group";
+import { ISpeciality } from "@/entities/speciality/types";
+import { specialityApi } from "@/entities/speciality/api";
 
-export interface ILessonFormData {
-  label: string;
+// Временные типы - замените на реальные из вашего проекта
+interface ISpecialty {
+  id?: string;
+  title: string;
+  code: string;
+  description?: string;
+  students?: IUser[];
+  groups?: IGroup[];
+}
+
+export interface ISpecialtyFormData {
+  title: string;
+  code: string;
+  number: string;
   description: string;
 }
 
-const initialFormData: ILessonFormData = {
-  label: "",
+const initialFormData: ISpecialtyFormData = {
+  title: "",
+  code: "",
+  number: "",
   description: "",
 };
 
-export default function LessonsPage() {
-  const [lessons, setLessons] = useState<ILesson[]>([]);
-  const [filteredLessons, setFilteredLessons] = useState<ILesson[]>([]);
+export default function SpecialtyPage() {
+  const [specialties, setSpecialties] = useState<ISpecialty[]>([]);
+  const [filteredSpecialties, setFilteredSpecialties] = useState<ISpecialty[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<ILessonFormData>(initialFormData);
-  const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
-  const [bulkLessons, setBulkLessons] = useState<string>("");
+  const [formData, setFormData] = useState<ISpecialtyFormData>(initialFormData);
+  const [editingSpecialtyId, setEditingSpecialtyId] = useState<string | null>(
+    null
+  );
+  const [bulkSpecialties, setBulkSpecialties] = useState<string>("");
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const { toast } = useToast();
 
-  // Загрузка дисциплин
-  const loadLessons = async () => {
+  // Загрузка специальностей
+  const loadSpecialties = async () => {
     try {
       setLoading(true);
-      const data = await lessonApi.endpoints.getAllLesson();
-      setLessons(data);
-      setFilteredLessons(data);
+      const data = await specialityApi.endpoints.getAllSpecialities();
+      setSpecialties(data);
+      setFilteredSpecialties(data);
     } catch (error) {
       toast({
         title: "Ошибка",
-        description: "Не удалось загрузить список дисциплин",
+        description: "Не удалось загрузить список специальностей",
         variant: "destructive",
       });
-      console.error("Error loading lessons:", error);
+      console.error("Error loading specialties:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadLessons();
+    loadSpecialties();
   }, []);
 
-  // Фильтрация дисциплин
+  // Фильтрация специальностей
   useEffect(() => {
-    let filtered = lessons;
+    let filtered = specialties;
 
-    // Поиск по названию или описанию
+    // Поиск по названию, коду или описанию
     if (searchQuery) {
       filtered = filtered.filter(
-        (lesson) =>
-          lesson.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          lesson.description.toLowerCase().includes(searchQuery.toLowerCase())
+        (specialty) =>
+          specialty.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          specialty.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          specialty.description
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
       );
     }
 
-    setFilteredLessons(filtered);
-    setCurrentPage(1); // сбросить страницу при фильтрации
-  }, [lessons, searchQuery]);
+    setFilteredSpecialties(filtered);
+    setCurrentPage(1);
+  }, [specialties, searchQuery]);
 
   // Пагинация
-  const totalPages = Math.ceil(filteredLessons.length / pageSize);
-  const paginatedLessons = filteredLessons.slice(
+  const totalPages = Math.ceil(filteredSpecialties.length / pageSize);
+  const paginatedSpecialties = filteredSpecialties.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
-  // Создание дисциплины
-  const handleCreateLesson = async () => {
+  // Создание специальности
+  const handleCreateSpecialty = async () => {
     try {
-      await lessonApi.endpoints.createLesson(formData as ILesson);
+      await specialityApi.endpoints.createSpeciality({
+        title: formData.title,
+        number: formData.code,
+        code: formData.code,
+        description: formData.description,
+      } as ISpeciality);
       toast({
         title: "Успешно",
-        description: "Дисциплина создана",
+        description: "Специальность создана",
       });
       setIsCreateDialogOpen(false);
       setFormData(initialFormData);
-      loadLessons();
+      loadSpecialties();
     } catch (error) {
       toast({
         title: "Ошибка",
-        description: "Не удалось создать дисциплину",
+        description: "Не удалось создать специальность",
         variant: "destructive",
       });
-      console.error("Error creating lesson:", error);
+      console.error("Error creating specialty:", error);
     }
   };
 
-  // Обновление дисциплины
-  const handleUpdateLesson = async () => {
-    if (!editingLessonId) return;
+  // Обновление специальности
+  const handleUpdateSpecialty = async () => {
+    if (!editingSpecialtyId) return;
 
     try {
-      await lessonApi.endpoints.updateLesson(
-        editingLessonId,
-        formData as ILesson
+      await specialityApi.endpoints.updateSpeciality(
+        editingSpecialtyId,
+        formData as Partial<ISpeciality>
       );
       toast({
         title: "Успешно",
-        description: "Дисциплина обновлена",
+        description: "Специальность обновлена",
       });
       setIsEditDialogOpen(false);
       setFormData(initialFormData);
-      setEditingLessonId(null);
-      loadLessons();
+      setEditingSpecialtyId(null);
+      loadSpecialties();
     } catch (error) {
       toast({
         title: "Ошибка",
-        description: "Не удалось обновить дисциплину",
+        description: "Не удалось обновить специальность",
         variant: "destructive",
       });
-      console.error("Error updating lesson:", error);
+      console.error("Error updating specialty:", error);
     }
   };
 
-  // Удаление дисциплины
-  const handleDeleteLesson = async (lessonId: string) => {
+  // Удаление специальности
+  const handleDeleteSpecialty = async (specialtyId: string) => {
     try {
-      await lessonApi.endpoints.deleteLesson(lessonId);
+      await specialityApi.endpoints.deleteSpeciality(specialtyId);
       toast({
         title: "Успешно",
-        description: "Дисциплина удалена",
+        description: "Специальность удалена",
       });
-      loadLessons();
+      loadSpecialties();
     } catch (error) {
       toast({
         title: "Ошибка",
-        description: "Не удалось удалить дисциплину",
+        description: "Не удалось удалить специальность",
         variant: "destructive",
       });
-      console.error("Error deleting lesson:", error);
+      console.error("Error deleting specialty:", error);
     }
   };
 
-  // Массовое создание дисциплин
+  // Массовое создание специальностей
   const handleBulkCreate = async () => {
     try {
-      const lessonsData = JSON.parse(bulkLessons);
-      if (!Array.isArray(lessonsData)) {
+      const specialtiesData = JSON.parse(bulkSpecialties);
+      if (!Array.isArray(specialtiesData)) {
         throw new Error("Данные должны быть массивом");
       }
 
-      // Создаем дисциплины по одной, так как нет метода createMany
-      for (const lessonData of lessonsData) {
-        await lessonApi.endpoints.createLesson(lessonData);
+      for (const specialtyData of specialtiesData) {
+        await specialityApi.endpoints.createSpeciality({
+          ...specialtyData,
+        } as ISpeciality);
       }
 
       toast({
         title: "Успешно",
-        description: `Создано ${lessonsData.length} дисциплин`,
+        description: `Создано ${specialtiesData.length} специальностей`,
       });
       setImportDialogOpen(false);
-      setBulkLessons("");
-      loadLessons();
+      setBulkSpecialties("");
+      loadSpecialties();
     } catch (error) {
       toast({
         title: "Ошибка",
-        description: "Не удалось создать дисциплины. Проверьте формат данных.",
+        description: "Не удалось создать записи. Проверьте формат данных.",
         variant: "destructive",
       });
-      console.error("Error bulk creating lessons:", error);
+      console.error("Error bulk creating specialties:", error);
     }
   };
 
   // Открытие диалога редактирования
-  const openEditDialog = (lesson: ILesson) => {
+  const openEditDialog = (specialty: ISpecialty) => {
     setFormData({
-      label: lesson.label,
-      description: lesson.description,
+      title: specialty.title,
+      code: specialty.code,
+      number: specialty.code,
+      description: specialty.description || "",
     });
-    setEditingLessonId(lesson.id || null);
+    setEditingSpecialtyId(specialty.id || null);
     setIsEditDialogOpen(true);
   };
 
@@ -249,14 +283,19 @@ export default function LessonsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Управление дисциплинами
+            Управление специальностями
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mt-1">
-            Просмотр, создание и редактирование дисциплин системы
+            Просмотр, создание и редактирование специальностей учебного
+            заведения
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={loadLessons} disabled={loading}>
+          <Button
+            variant="outline"
+            onClick={loadSpecialties}
+            disabled={loading}
+          >
             <RefreshCw
               className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
             />
@@ -271,25 +310,27 @@ export default function LessonsPage() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>Массовое создание дисциплин</DialogTitle>
+                <DialogTitle>Массовое создание специальностей</DialogTitle>
                 <DialogDescription>
-                  Введите JSON массив дисциплин для создания
+                  Введите JSON массив специальностей для создания
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <Textarea
                   placeholder={`[
   {
-    "label": "Математический анализ",
-    "description": "Основы математического анализа"
+    "name": "Информационные технологии",
+    "code": "09.02.07",
+    "description": "Разработка программного обеспечения"
   },
   {
-    "label": "Программирование",
-    "description": "Основы программирования"
+    "name": "Экономика и бухгалтерский учет",
+    "code": "38.02.01",
+    "description": "Экономическая деятельность предприятий"
   }
 ]`}
-                  value={bulkLessons}
-                  onChange={(e) => setBulkLessons(e.target.value)}
+                  value={bulkSpecialties}
+                  onChange={(e) => setBulkSpecialties(e.target.value)}
                   className="min-h-[200px] font-mono text-sm"
                 />
               </div>
@@ -300,49 +341,54 @@ export default function LessonsPage() {
                 >
                   Отмена
                 </Button>
-                <Button onClick={handleBulkCreate}>Создать дисциплины</Button>
+                <Button onClick={handleBulkCreate}>Создать записи</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            Добавить дисциплину
+            Добавить специальность
           </Button>
         </div>
       </div>
 
       {/* Статистика */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Всего дисциплин
+              Всего специальностей
             </CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
+            <GraduationCap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{lessons.length}</div>
+            <div className="text-2xl font-bold">{specialties.length}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">С описанием</CardTitle>
-            <BookOpen className="h-4 w-4 text-blue-500" />
+            <CardTitle className="text-sm font-medium">
+              Всего студентов
+            </CardTitle>
+            <Users className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {lessons.filter((l) => l.description.trim().length > 0).length}
+              {specialties.reduce(
+                (acc, s) => acc + (s.students?.length || 0),
+                0
+              )}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Без описания</CardTitle>
+            <CardTitle className="text-sm font-medium">Всего групп</CardTitle>
             <BookOpen className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {lessons.filter((l) => l.description.trim().length === 0).length}
+              {specialties.reduce((acc, s) => acc + (s.groups?.length || 0), 0)}
             </div>
           </CardContent>
         </Card>
@@ -351,9 +397,9 @@ export default function LessonsPage() {
       {/* Фильтры и поиск */}
       <Card>
         <CardHeader>
-          <CardTitle>Список дисциплин</CardTitle>
+          <CardTitle>Список специальностей</CardTitle>
           <CardDescription>
-            Управление всеми дисциплинами системы
+            Управление специальностями учебного заведения
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -361,7 +407,7 @@ export default function LessonsPage() {
             <div className="relative flex-1">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Поиск по названию или описанию..."
+                placeholder="Поиск по названию, коду или описанию..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8"
@@ -369,58 +415,78 @@ export default function LessonsPage() {
             </div>
           </div>
 
-          {/* Таблица дисциплин */}
+          {/* Таблица специальностей */}
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Название</TableHead>
+                  <TableHead>Специальность</TableHead>
+                  <TableHead>Код</TableHead>
                   <TableHead>Описание</TableHead>
+                  <TableHead>Студенты</TableHead>
+                  <TableHead>Группы</TableHead>
+                  <TableHead>Статус</TableHead>
                   <TableHead className="text-right">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8">
+                    <TableCell colSpan={7} className="text-center py-8">
                       <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
-                      Загрузка дисциплин...
+                      Загрузка специальностей...
                     </TableCell>
                   </TableRow>
-                ) : paginatedLessons.length === 0 ? (
+                ) : paginatedSpecialties.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={3}
+                      colSpan={7}
                       className="text-center py-8 text-muted-foreground"
                     >
-                      Дисциплины не найдены
+                      Специальности не найдены
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedLessons?.map((lesson) => (
-                    <TableRow key={lesson.id}>
+                  paginatedSpecialties?.map((specialty) => (
+                    <TableRow key={specialty.id}>
                       <TableCell>
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                            <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-300" />
+                          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                            <GraduationCap className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                           </div>
-                          <div className="font-medium">{lesson.label}</div>
+                          <div>
+                            <div className="font-medium">{specialty.title}</div>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="max-w-md">
-                          {lesson.description ? (
-                            <span className="text-sm text-muted-foreground">
-                              {lesson.description.length > 100
-                                ? `${lesson.description.substring(0, 100)}...`
-                                : lesson.description}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground italic">
-                              Описание отсутствует
-                            </span>
-                          )}
+                        <Badge variant="outline" className="font-mono">
+                          {specialty.code}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-xs truncate text-sm text-muted-foreground">
+                          {specialty.description || "Описание отсутствует"}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Users className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">
+                            {specialty.students?.length || 0}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <BookOpen className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">
+                            {specialty.groups?.length || 0}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={"default"}>{"Активна"}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -432,7 +498,7 @@ export default function LessonsPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Действия</DropdownMenuLabel>
                             <DropdownMenuItem
-                              onClick={() => openEditDialog(lesson)}
+                              onClick={() => openEditDialog(specialty)}
                             >
                               <Edit className="mr-2 h-4 w-4" />
                               Редактировать
@@ -450,11 +516,14 @@ export default function LessonsPage() {
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>
-                                    Удалить дисциплину?
+                                    Удалить специальность?
                                   </AlertDialogTitle>
                                   <AlertDialogDescription>
                                     Это действие нельзя будет отменить.
-                                    Дисциплина <strong>{lesson.label}</strong>{" "}
+                                    Специальность{" "}
+                                    <strong>
+                                      {specialty.title} ({specialty.code})
+                                    </strong>{" "}
                                     будет удалена навсегда.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
@@ -462,7 +531,7 @@ export default function LessonsPage() {
                                   <AlertDialogCancel>Отмена</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() =>
-                                      handleDeleteLesson(lesson.id!)
+                                      handleDeleteSpecialty(specialty.id!)
                                     }
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                   >
@@ -506,25 +575,24 @@ export default function LessonsPage() {
         </CardContent>
       </Card>
 
-      {/* Диалоги */}
-      <LessonFormDialog
+      <SpecialtyFormDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
-        onSubmit={handleCreateLesson}
+        onSubmit={handleCreateSpecialty}
         formData={formData}
         setFormData={setFormData}
-        title="Создание дисциплины"
-        description="Введите данные новой дисциплины"
+        title="Создание специальности"
+        description="Введите данные новой специальности"
       />
 
-      <LessonFormDialog
+      <SpecialtyFormDialog
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
-        onSubmit={handleUpdateLesson}
+        onSubmit={handleUpdateSpecialty}
         formData={formData}
         setFormData={setFormData}
-        title="Редактирование дисциплины"
-        description="Измените данные дисциплины"
+        title="Редактирование специальности"
+        description="Измените данные специальности"
       />
     </div>
   );

@@ -27,7 +27,7 @@ import { UserCard } from "./user-card";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useUserStore } from "@/entities/auth/provider";
-import roleChecker from "../role/check-role";
+import { EUserRole } from "@/types/user";
 
 interface ILink {
   label: string;
@@ -83,12 +83,12 @@ const settingsLinks: ILink[] = [
   },
 ];
 
-export const getLinks = (isAuth: boolean): ILink[] => {
+export const getLinks = (isAuth: boolean, role?: EUserRole): ILink[] => {
   if (isAuth) {
     return links.filter((link) => link.url !== "/admin");
   }
 
-  if (roleChecker.ADMIN()) {
+  if (role === "ADMIN") {
     return links;
   }
   return links.filter(
@@ -132,12 +132,15 @@ export const Drawer = () => {
 
         {/* Профиль пользователя */}
         <div className="p-4">
-          <UserCard />
-          {!isAuth && (
-            <Button variant="outline" className="w-full">
-              <LogInIcon className="mr-2" />
-              Авторизоваться
-            </Button>
+          {!isAuth ? (
+            <Link href="/login">
+              <Button variant="outline" className="w-full">
+                <LogInIcon className="mr-2" />
+                Авторизоваться
+              </Button>
+            </Link>
+          ) : (
+            <UserCard />
           )}
         </div>
 
@@ -150,7 +153,7 @@ export const Drawer = () => {
               Навигация
             </h3>
             <nav className="space-y-1">
-              {getLinks(isAuth).map((link, index) => (
+              {getLinks(isAuth, currentUser?.role).map((link, index) => (
                 <Link
                   key={index}
                   href={link.url}

@@ -15,6 +15,7 @@ import {
   Settings,
   Edit,
   Calendar,
+  CogIcon,
 } from "lucide-react";
 import BoringAvatar from "boring-avatars";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -22,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { IUser } from "@/types/user";
 import Link from "next/link";
+import roleChecker from "@/components/role/check-role";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -76,6 +78,8 @@ export default function ProfilePage() {
       </main>
     );
   }
+
+  console.log({ roleChecker: roleChecker.ADMIN(), user });
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role?.toLowerCase()) {
@@ -215,19 +219,38 @@ export default function ProfilePage() {
                 <CardTitle className="text-lg">Быстрые действия</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link href="/schedule">
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Посмотреть расписание
-                  </Button>
-                </Link>
+                {user.role === "ADMIN" && (
+                  <>
+                    <Link href="/admin">
+                      <Button variant="ghost" className="w-full justify-start">
+                        <CogIcon className="h-4 w-4 mr-2" />
+                        Войти в админ-панель
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                {user.role === "STUDENT" && (
+                  <>
+                    <Link href="/schedule">
+                      <Button variant="ghost" className="w-full justify-start">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Посмотреть расписание
+                      </Button>
+                    </Link>
 
-                <Link href={`/groups/${user?.studentGroup?.id}`}>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Users className="h-4 w-4 mr-2" />
-                    Посмотреть группу
-                  </Button>
-                </Link>
+                    {user.studentGroup && (
+                      <Link href={`/groups/${user?.studentGroup?.id}`}>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                        >
+                          <Users className="h-4 w-4 mr-2" />
+                          Посмотреть группу
+                        </Button>
+                      </Link>
+                    )}
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
